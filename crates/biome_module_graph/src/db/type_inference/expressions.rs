@@ -78,7 +78,7 @@ impl<'db> MemberLookupResolver<'db> for ResolutionCtx<'db, '_> {
         db: &'db dyn crate::ModuleDb,
         ty: InferredTypeData<'db>,
         is_optional: bool,
-        substitutions: &super::lookup::SubstitutionEnvironment<'db>,
+        substitutions: &[biome_js_type_info::interned_types::TypeSubstitution<'db>],
         crossed_instance: bool,
     ) -> InferredTypeData<'db> {
         let ty = if crossed_instance {
@@ -86,7 +86,7 @@ impl<'db> MemberLookupResolver<'db> for ResolutionCtx<'db, '_> {
         } else {
             ty
         };
-        let ty = substitutions.apply(db, ty);
+        let ty = apply_substitutions(db, ty, substitutions);
         let Ok(ty) = normalize_structural_type(db, ty, |ty| ty) else {
             return InferredTypeData::Unknown;
         };
